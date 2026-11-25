@@ -24,3 +24,7 @@
 - International account service
 - Account statement service
 - Loan management service
+
+#### Environment variables
+- PORT = some_port_number
+- API_URL = your_api_url

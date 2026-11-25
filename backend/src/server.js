@@ -1,8 +1,12 @@
 const bankApp = require("./app.js");
+const connectToDatabase = require("./configs/db.config.js");
 const ENV = require("./configs/env.config.js");
 
 const PORT = ENV.PORT;
 const API_URL = ENV.API_URL;
+
+// Database connection
+connectToDatabase();
 
 // Server listen
 bankApp.listen(PORT, () =>
