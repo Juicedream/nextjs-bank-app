@@ -7,6 +7,7 @@
 - Next js
 
 #### Access roles
+- Admin
 - Bank manager
 - Customers
 - Auditors

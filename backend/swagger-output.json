@@ -1,0 +1,359 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Next Bank API Documentation",
+    "description": "This is the restapi for next bank",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "App",
+      "description": "App endpoints"
+    },
+    {
+      "name": "Users",
+      "description": "User endpoints"
+    },
+    {
+      "name": "Nins",
+      "description": "Nin endpoints"
+    },
+    {
+      "name": "Accounts",
+      "description": "Accounts endpoints"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": [
+          "App"
+        ],
+        "summary": "Home",
+        "description": "Home",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "App"
+        ],
+        "summary": "Health",
+        "description": "Shows app health",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/users/": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get all users",
+        "description": "Get all users",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get user by id",
+        "description": "Get user by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Update user by id",
+        "description": "Update user by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/create-password/{id}": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Create user password by id",
+        "description": "Create user password by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/nins/": {
+      "get": {
+        "tags": [
+          "Nins"
+        ],
+        "summary": "Get all nins",
+        "description": "Get all nins",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Nins"
+        ],
+        "summary": "Create Nin for user",
+        "description": "Create Nin for user",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "example": "any"
+                  },
+                  "firstName": {
+                    "example": "any"
+                  },
+                  "middleName": {
+                    "example": "any"
+                  },
+                  "lastName": {
+                    "example": "any"
+                  },
+                  "gender": {
+                    "example": "any"
+                  },
+                  "phoneNumber": {
+                    "example": "any"
+                  },
+                  "homeAddress": {
+                    "example": "any"
+                  },
+                  "dateOfBirth": {
+                    "example": "any"
+                  },
+                  "stateOfOrigin": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/nins/{nin}": {
+      "get": {
+        "tags": [
+          "Nins"
+        ],
+        "summary": "Get Nin by nin number",
+        "description": "Gets Nin by nin number",
+        "parameters": [
+          {
+            "name": "nin",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/accounts/": {
+      "get": {
+        "tags": [
+          "Accounts"
+        ],
+        "summary": "Get all accounts",
+        "description": "Get all accounts",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Accounts"
+        ],
+        "summary": "Create account for a user",
+        "description": "Create account for a user",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nin": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/accounts/number/{accountNumber}": {
+      "get": {
+        "tags": [
+          "Accounts"
+        ],
+        "summary": "Get account by account number",
+        "description": "Get account by account number",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/accounts/{userId}": {
+      "get": {
+        "tags": [
+          "Accounts"
+        ],
+        "summary": "Get all user accounts by user id",
+        "description": "Get all user accounts by user id",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

@@ -8,10 +8,16 @@ const mailService = require("../services/mail.service");
 
 const ninController = {
   async getAllNins(_, res) {
+      // #swagger.tags = ['Nins']
+    // #swagger.summary = 'Get all nins'
+    // #swagger.description = 'Get all nins'
     const nins = await ninService.fetchAllNins();
     successResponse(res, "All Nins", 200, { nins });
   },
   async getNinByNinNumber(req, res, next) {
+      // #swagger.tags = ['Nins']
+    // #swagger.summary = 'Get Nin by nin number'
+    // #swagger.description = 'Gets Nin by nin number'
     const { nin } = req.params;
     if (isNaN(nin)) {
       return next(throwError("Invalid nin number", 400));
@@ -22,6 +28,9 @@ const ninController = {
     return successResponse(res, "Nin found", 200, { nin: userNin });
   },
   async createNinForUser(req, res, next) {
+    // #swagger.tags = ['Nins']
+    // #swagger.summary = 'Create Nin for user'
+    // #swagger.description = 'Create Nin for user'
     const {
       email,
       firstName,

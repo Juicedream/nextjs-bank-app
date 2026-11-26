@@ -6,10 +6,16 @@ const mailService = require("../services/mail.service");
 
 const accountController = {
   async getAllAccounts(_, res) {
+    // #swagger.tags = ['Accounts']
+    // #swagger.summary = 'Get all accounts'
+    // #swagger.description = 'Get all accounts'
     const accounts = await accountService.allAccounts();
     return successResponse(res, "All accounts", 200, {accounts});
   },
   async getAccountsByUserId(req, res, next) {
+     // #swagger.tags = ['Accounts']
+    // #swagger.summary = 'Get all user accounts by user id'
+    // #swagger.description = 'Get all user accounts by user id'
     const {userId} = req.params;
     if (!isValidObjectId(userId)) return next(throwError("Invalid user id provided!", 400));
     try {
@@ -21,6 +27,9 @@ const accountController = {
     }
   },
   async getAccountByAccountNumber(req, res, next) {
+     // #swagger.tags = ['Accounts']
+    // #swagger.summary = 'Get account by account number'
+    // #swagger.description = 'Get account by account number'
     let {accountNumber} = req.params;
     if (isNaN(accountNumber) || accountNumber.length < 11 || accountNumber.length > 11) return next(throwError("Invalid account number!", 400));
     accountNumber = Number(accountNumber);
@@ -37,6 +46,9 @@ const accountController = {
     }
   },
   async createAccount(req, res, next) {
+     // #swagger.tags = ['Accounts']
+    // #swagger.summary = 'Create account for a user'
+    // #swagger.description = 'Create account for a user'
     const {nin} = req.body;
 
     if (!nin) return next(throwError("Nin is required!", 400));

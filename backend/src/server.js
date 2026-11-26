@@ -10,7 +10,12 @@ connectToDatabase();
 
 // Server listen
 bankApp.listen(PORT, () =>
-  console.log(
+  {
+    console.log(
     `🖥️ Bank app api server listening on port: ${PORT} as ${API_URL}`,
-  ),
+  );
+    console.log(
+    `📚 Swagger Docs is running on : ${API_URL}/api-docs`,
+  );
+}
 );
