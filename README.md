@@ -13,10 +13,10 @@
 
 #### Features
 - NIN service
-- KYC service
-- Transactional service
 - Authentication service
+- Transactional service
 - Fraud Detection service
+- KYC service
 - Logging service
 - Card service
 - Payment gateway service
