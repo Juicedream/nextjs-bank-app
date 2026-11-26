@@ -145,6 +145,7 @@ const ninController = {
       return next(throwError("Unable to create nin at the moment"));
     }
   },
+
 };
 
 module.exports = ninController;

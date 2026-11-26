@@ -15,9 +15,10 @@ const doc = {
   ],
    tags: [
     { name: 'App', description: 'App endpoints' },
-    { name: 'Users', description: 'User endpoints' },
-    { name: 'Nins', description: 'Nin endpoints' },
+    { name: 'Users', description: 'Users endpoints' },
+    { name: 'Nins', description: 'Nins endpoints' },
     { name: 'Accounts', description: 'Accounts endpoints' },
+    { name: 'Transactions', description: 'Transactions endpoints' },
   ],
   components: {
     securitySchemes: {

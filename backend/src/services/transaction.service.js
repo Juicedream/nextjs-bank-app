@@ -8,16 +8,16 @@ class TransactionService {
 
   async transactionById(id) {
     const transaction = await db.Transaction.findById(id).exec();
-    if (!transaction) return null;
+    if (!transaction) return {error: "Transaction not found", code: 404};
 
-    return transaction;
+    return {transaction};
   }
 
-  async #transactionByRef(ref) {
+  async transactionByRef(ref) {
     const transaction = await db.Transaction.findOne({ref}).exec();
-    if (!transaction) return null;
+    if (!transaction) return {error: "Transaction not found", code: 404};
 
-    return transaction;
+    return {transaction};
   }
 
   async create(data) {

@@ -10,6 +10,8 @@ userRouter
 
   .post("/create-password/:id", userController.createPassword)
 
-  .patch("/:id", userController.updateUserInfo);
+  .patch("/:id", userController.updateUserInfo)
+
+  .delete("/delete", userController.deleteUser)
 
 module.exports = userRouter;

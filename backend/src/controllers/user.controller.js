@@ -73,6 +73,18 @@ const userController = {
       user,
     });
   },
+  async deleteUser(req, res, next) {
+     // #swagger.tags = ['Users']
+    // #swagger.summary = 'Delete user by email'
+    // #swagger.description = 'Delete user by email'
+    let {email} = req.body;
+    email = email.toLowerCase();
+    const emailRegex = /^\S+@\S+\.\S+$/;
+    if (!email || !emailRegex.test(email)) return next(throwError("Please provide a valid email", 400));
+    const {error} = await userService.deleteUserByEmail(email);
+    if (error) return next(throwError(error));
+    return successResponse(res, "", 204); 
+  },
 };
 
 module.exports = userController;

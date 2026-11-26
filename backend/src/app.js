@@ -8,6 +8,7 @@ const ninRouter = require("./routes/nin.routes");
 const successResponse = require("./middlewares/success.response.handler");
 const accountRouter = require("./routes/account.routes");
 const swaggerFile = require("../swagger-output.json");
+const transactionRouter = require("./routes/transaction.routes");
 
 const app = express();
 
@@ -44,6 +45,7 @@ app.get("/health", (_, res) =>
 app.use("/api/users", userRouter);
 app.use("/api/nins", ninRouter);
 app.use("/api/accounts", accountRouter);
+app.use("/api/transactions", transactionRouter);
 
 // Error handler middleware - Catch all errors in our app
 app.use(catchAllErrorsMiddleware);

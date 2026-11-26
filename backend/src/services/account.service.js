@@ -155,7 +155,7 @@ class AccountService {
     return { newAccount, userEmail: existingNin.email, accountPin: pin };
   }
 
-  async delete(accountNumber) {
+  async deleteAccountByAccountNumber(accountNumber) {
     const account = await this.findAccountByAccountNumber(accountNumber);
 
     const user = await this.#userService.findUserById(account.userId);
@@ -163,8 +163,6 @@ class AccountService {
     await this.#userService.deleteUserAccount(user._id, account._id);
 
     await db.Account.findByIdAndDelete(account._id);
-
-    // const deletedTransactions =
 
     return { deleted: true };
   }
@@ -282,6 +280,15 @@ class AccountService {
 
     console.log("Sender refunded successfully");
     return { message: "Sender refunded successfully!" };
+  }
+
+  async deleteAccountsByUserId(userId) {
+    try {
+      await db.Account.deleteMany({userId});
+      return {deleted: true}
+    } catch (error) {
+      return {deleted: false, error}
+    }
   }
 }
 

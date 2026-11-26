@@ -59,10 +59,15 @@ class NinSevice {
   }
 
   async deleteNin(id) {
-    const nin = await this.#findNinById(id);
-    if (!nin) return { deleted: false };
     await db.Nin.findByIdAndDelete(id);
     return { deleted: true };
+  }
+
+  async deleteNinForUser(email) {
+    const nin = await db.Nin.findOne({email});
+    if (!nin) return {error: "Nin not found", deleted: false};
+    const {deleted} = await this.deleteNin(nin._id);
+    return {deleted};
   }
 }
 

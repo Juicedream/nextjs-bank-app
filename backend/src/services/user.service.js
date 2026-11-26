@@ -1,7 +1,12 @@
 const db = require("../db/index");
 const { comparePasswords, hashPassword } = require("../utils/password.utils");
+const accountService = require("./account.service");
+const ninService = require("./nin.service");
 
 class UserService {
+  #ninService = ninService;
+  #accountService = accountService;
+
   async findAllUsers() {
     return await db.User.find({}).populate("ninId").lean();
   }
@@ -9,7 +14,7 @@ class UserService {
   async findUserById(id) {
     const user = await db.User.findById(id).populate("ninId").lean();
     if (!user) return { error: "User not found" };
-     
+
     return { user };
   }
 
@@ -53,10 +58,7 @@ class UserService {
   }
 
   async delete(id) {
-    const user = await this.findUserById(id);
-    if (!user) return { deleted: false };
-
-    await db.User.deleteOne({ _id: id });
+    await db.User.findByIdAndDelete(id);
     return { deleted: true };
   }
 
@@ -90,19 +92,35 @@ class UserService {
     return updatedAccounts;
   }
 
-  async deleteUserAccount(userId, accountId) {
+  async deleteUserAccountByAccountIdAndUserId(userId, accountId) {
     const user = await this.findUserById(userId);
     user.accounts = user.accounts.filter((acc) => acc.id !== accountId);
     await user.save();
     return { deleted: true };
   }
 
+  async deleteUserByEmail(email) {
+    let user;
+    try {
+      user = await this.findUserByEmail(email);
+      if (!user) return { error: "User not found" };
+      await Promise.all([
+        this.#accountService.deleteAccountsByUserId(user._id),
+        this.#ninService.deleteNinForUser(email),
+        this.delete(user._id),
+      ]);
+      return { deleted: true };
+    } catch (error) {
+      return { error, deleted: true };
+    }
+  }
+
   async randomManagerAccountId() {
     const users = await db.User.find({
       role: "manager",
     })
-    .populate("ninId")
-    .exec();
+      .populate("ninId")
+      .exec();
     if (users.length < 0) return null;
 
     let managerIds = [];

@@ -18,15 +18,19 @@
     },
     {
       "name": "Users",
-      "description": "User endpoints"
+      "description": "Users endpoints"
     },
     {
       "name": "Nins",
-      "description": "Nin endpoints"
+      "description": "Nins endpoints"
     },
     {
       "name": "Accounts",
       "description": "Accounts endpoints"
+    },
+    {
+      "name": "Transactions",
+      "description": "Transactions endpoints"
     }
   ],
   "paths": {
@@ -161,6 +165,34 @@
                 "type": "object",
                 "properties": {
                   "password": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/delete": {
+      "delete": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Delete user by email",
+        "description": "Delete user by email",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
                     "example": "any"
                   }
                 }
@@ -332,6 +364,92 @@
         "parameters": [
           {
             "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/transactions/": {
+      "get": {
+        "tags": [
+          "Transactions"
+        ],
+        "summary": "Get all transactions",
+        "description": "Get all transactions",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/transactions/account-number/{accountNumber}": {
+      "get": {
+        "tags": [
+          "Transactions"
+        ],
+        "summary": "Get transactions for accountNumber",
+        "description": "Get transactions for accountNumber",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/transactions/id/{id}": {
+      "get": {
+        "tags": [
+          "Transactions"
+        ],
+        "summary": "Get transaction by id",
+        "description": "Get transaction by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/transactions/ref/{ref}": {
+      "get": {
+        "tags": [
+          "Transactions"
+        ],
+        "summary": "Get transaction by ref",
+        "description": "Get transaction by ref",
+        "parameters": [
+          {
+            "name": "ref",
             "in": "path",
             "required": true,
             "schema": {
