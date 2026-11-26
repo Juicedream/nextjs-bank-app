@@ -152,7 +152,7 @@ class AccountService {
    
 
     console.log("Created account for user, Here is the pin", pin);
-    return {newAccount};
+    return { newAccount, userEmail: existingNin.email, accountPin: pin };
   }
 
   async delete(accountNumber) {

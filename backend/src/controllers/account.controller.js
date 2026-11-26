@@ -2,6 +2,7 @@ const { isValidObjectId, default: mongoose } = require("mongoose");
 const successResponse = require("../middlewares/success.response.handler");
 const accountService = require("../services/account.service");
 const { throwError } = require("../middlewares/error.handler.middleware");
+const mailService = require("../services/mail.service");
 
 const accountController = {
   async getAllAccounts(_, res) {
@@ -45,11 +46,25 @@ const accountController = {
     session.startTransaction();
 
     try {
-      const {error, code, newAccount} = await accountService.create(nin, session);
+      const {error, code, newAccount, userEmail, accountPin} = await accountService.create(nin, session);
       if (code === 404) return next(throwError(error, code));
       if (code === 401) return next(throwError(error, code));
-       //TODO: Send mail for account creation
+      //TODO: Send mail for account creation
        await session.commitTransaction();
+       await mailService.send.accountCreationMail(
+        userEmail,
+        `
+          <p>Dear <b>${newAccount.accountName}</b>,</p>
+          <p>Your account has been created successfully!</p>
+          <p>Account Number: <b>${newAccount.accountNumber}</b></p>
+          <p>Account Pin: <b>${accountPin}</b></p>
+          <p>Account Type: <b>${newAccount.type.charAt(0).toUpperCase() + newAccount.type.slice(1)}</b></p>
+          <br>
+          <br>
+          <p>If you did not initiate this. kindly reach out to admin@nextbank.com</p>
+          <p>Made with ❤️ by Next Bank &copy; ${new Date().getFullYear()}</p>
+        `
+       );
       return successResponse(res, "Account created successfully", 201, {account: newAccount});
     } catch (error) {
       await session.abortTransaction()

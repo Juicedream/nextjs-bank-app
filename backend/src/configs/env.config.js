@@ -9,6 +9,10 @@ const ENV = {
   API_URL : process.env.API_URL || "http://localhost:3000",
 
   MONGO_URI: process.env.MONGO_URI || "mongo+srv/localhost://",
+
+  EMAIL_USER: process.env.EMAIL_USER || "some_email@example.com",
+
+  EMAIL_PASS: process.env.EMAIL_PASS  || "some_app_password",
 };
 
 module.exports = ENV;

@@ -4,6 +4,7 @@ const { throwError } = require("../middlewares/error.handler.middleware");
 const successResponse = require("../middlewares/success.response.handler");
 const ninService = require("../services/nin.service");
 const { isValidDateOfBirth } = require("../utils/nin.utils");
+const mailService = require("../services/mail.service");
 
 const ninController = {
   async getAllNins(_, res) {
@@ -114,7 +115,20 @@ const ninController = {
         return next(throwError(error, code));
       }
       await session.commitTransaction();
-      successResponse(res, "Nin created successfully", 201, { nin: info });
+      // Send mail for nin creation
+      await mailService.send.ninCreationMail(
+        info.email,
+        `
+        <p>Dear <b>${info.firstName}</b>,</p>
+        <p>Your NIN has been created successfully</p>
+        <p>NIN: <b>${info.nin}</b></p>
+        <br>
+        <br>
+        <p>If you did not initiate this. kindly reach out to admin@nextbank.com</p>
+        <p>Made with ❤️ by Next Bank &copy; ${new Date().getFullYear()}</p>
+        `
+      )
+      return successResponse(res, "Nin created successfully", 201, { nin: info });
     } catch (error) {
       await session.abortTransaction();
       session.endSession();
