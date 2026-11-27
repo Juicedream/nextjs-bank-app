@@ -13,6 +13,10 @@ const ENV = {
   EMAIL_USER: process.env.EMAIL_USER || "some_email@example.com",
 
   EMAIL_PASS: process.env.EMAIL_PASS  || "some_app_password",
+  
+  JWT_SECRET: process.env.JWT_SECRET  || "some_secret",
+
+  NODE_ENV: process.env.NODE_ENV || "development"
 };
 
 module.exports = ENV;

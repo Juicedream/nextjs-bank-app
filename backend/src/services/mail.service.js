@@ -1,7 +1,5 @@
 const mailTransporter = require("../configs/mail.config");
 
-
-
   async function sendMail (to, subject, html) {
     try {
     const info = await mailTransporter.sendMail({
@@ -16,8 +14,12 @@ const mailTransporter = require("../configs/mail.config");
     }
   }
 
-  class MailService {
-    send = {
+  const mailService = {
+    send : {
+      // Send login email
+      async loginEmail(to, html) {
+        await sendMail(to, "Online Banking Login", html);
+      },
       // Send Nin creation email
       async ninCreationMail (to, html) {
         await sendMail(to, "NIN created successfully", html);
@@ -25,7 +27,16 @@ const mailTransporter = require("../configs/mail.config");
       // Send account creation email
       async accountCreationMail(to, html){
         await sendMail(to, "Account created successfully", html);
-      }    
+      },
+      // Send forgot password otp email
+      async forgotPasswordMail(to, otpCode, html) {
+        await sendMail(to, `Your OTP Code: ${otpCode}`, html);
+      },
+      // Send reset password otp email
+      async resetPasswordMail(to, html) {
+        await sendMail(to, "Password reset successful", html);
+      },
+
     }
   }
 
@@ -33,4 +44,4 @@ const mailTransporter = require("../configs/mail.config");
 
 
 
-module.exports = new MailService;
+module.exports = mailService;

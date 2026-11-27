@@ -42,7 +42,6 @@ const TransactionController = {
     // #swagger.tags = ['Transactions']
     // #swagger.summary = 'Get transactions for accountNumber'
     // #swagger.description = 'Get transactions for accountNumber'
-
     let {accountNumber} = req.params;
     if (!accountNumber || isNaN(accountNumber)) return next(throwError("Please provide a valid account number", 400));
     accountNumber = Number(accountNumber);

@@ -1,26 +1,21 @@
 const db = require("../db/index");
 const { comparePasswords, hashPassword } = require("../utils/password.utils");
-const accountService = require("./account.service");
-const ninService = require("./nin.service");
 
-class UserService {
-  #ninService = ninService;
-  #accountService = accountService;
-
+const userService = {
   async findAllUsers() {
     return await db.User.find({}).populate("ninId").lean();
-  }
+  },
 
   async findUserById(id) {
     const user = await db.User.findById(id).populate("ninId").lean();
-    if (!user) return { error: "User not found" };
+    if (!user) return { error: "User not found", code: 404 };
 
     return { user };
-  }
+  },
 
   async createUser(ninData, email, session) {
     const existingUser = await this.findUserByEmail(email, session);
-    if (existingUser) return null;
+    if (existingUser) return { error: "User not found", code: 404 };
     // Create User
     const [newUser] = await db.User.create(
       [
@@ -32,35 +27,34 @@ class UserService {
       { session },
     );
 
-    return newUser;
-  }
+    return { newUser };
+  },
 
   async findUserByEmail(email, session) {
     const user = session
-      ? await db.User.findOne({ email }).populate("ninId").session(session)
-      : await db.User.findOne({ email }).populate("ninId");
+      ? await db.User.findOne({ email }).session(session)
+      : await db.User.findOne({ email });
     return user;
-  }
+  },
 
   async checkCredentails(email, password) {
     const existingUser = await this.findUserByEmail(email);
-    if (!existingUser) return null;
+    if (!existingUser) return { error: "Invalid credentials", code: 400 };
     // Check if the password matches the password in the db
     const passwordsMatch = await comparePasswords(
       password,
       existingUser?.passwordHash,
     );
 
-    if (!passwordsMatch) return null;
+    if (!passwordsMatch) return { error: "Invalid Credentials", code: 400 };
 
-    const { passwordHash, ...rest } = existingUser;
-    return rest;
-  }
+    return { user: existingUser };
+  },
 
-  async delete(id) {
+  async deleteUserById(id) {
     await db.User.findByIdAndDelete(id);
     return { deleted: true };
-  }
+  },
 
   async updateUser(id, data) {
     const user = await this.findUserById(id);
@@ -75,45 +69,24 @@ class UserService {
       passwordHash: hashedPassword,
     });
 
-    if (data.password) {
-      return { user: updatedUser };
-    } else {
-      const { passwordHash, ...rest } = updatedUser;
-      return { user: rest };
-    }
-  }
+    return { user: updatedUser };
+  },
 
-  async addUserAccount(userId, newAccountId) {
-    const user = await this.findUserById(userId);
-    if (!user) return null;
+  async addNewAccountToUser(userId, newAccountId) {
+    const { error, code, user } = await this.findUserById(userId);
+    if (error) return { error, code };
     const updatedAccounts = await db.User.findByIdAndUpdate(userId, {
       accounts: [...user.accounts, newAccountId],
     });
-    return updatedAccounts;
-  }
+    return { updatedAccounts };
+  },
 
   async deleteUserAccountByAccountIdAndUserId(userId, accountId) {
     const user = await this.findUserById(userId);
     user.accounts = user.accounts.filter((acc) => acc.id !== accountId);
     await user.save();
     return { deleted: true };
-  }
-
-  async deleteUserByEmail(email) {
-    let user;
-    try {
-      user = await this.findUserByEmail(email);
-      if (!user) return { error: "User not found" };
-      await Promise.all([
-        this.#accountService.deleteAccountsByUserId(user._id),
-        this.#ninService.deleteNinForUser(email),
-        this.delete(user._id),
-      ]);
-      return { deleted: true };
-    } catch (error) {
-      return { error, deleted: true };
-    }
-  }
+  },
 
   async randomManagerAccountId() {
     const users = await db.User.find({
@@ -129,7 +102,7 @@ class UserService {
     });
 
     return managerIds[Math.floor(Math.random() * managerIds.length)];
-  }
-}
+  },
+};
 
-module.exports = new UserService();
+module.exports = userService;

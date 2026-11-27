@@ -1,24 +1,24 @@
 const db = require("../db/index");
 
-class TransactionService {
+const transactionService = {
 
   async allTransactions(){
     return await db.Transaction.find().exec();
-  }
+  },
 
   async transactionById(id) {
     const transaction = await db.Transaction.findById(id).exec();
     if (!transaction) return {error: "Transaction not found", code: 404};
 
     return {transaction};
-  }
+  },
 
   async transactionByRef(ref) {
     const transaction = await db.Transaction.findOne({ref}).exec();
     if (!transaction) return {error: "Transaction not found", code: 404};
 
     return {transaction};
-  }
+  },
 
   async create(data) {
     const transactionExists = await db.Transaction.findOne({
@@ -41,7 +41,7 @@ class TransactionService {
     });
 
     return newTransaction;
-  }
+  },
 
   async update(ref, data) {
     const transactions = await db.Transaction.find({
@@ -56,7 +56,7 @@ class TransactionService {
     }, {status: data.status});
 
     return updatedTransactions;
-  }
+  },
 
   async allUserTransactionsByAccountNumber(accountNumber) {
     const receiverTransactions = await db.Transaction.find({
@@ -76,4 +76,4 @@ class TransactionService {
   }
 }
 
-module.exports = new TransactionService;
+module.exports = transactionService;

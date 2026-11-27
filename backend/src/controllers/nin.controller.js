@@ -12,7 +12,7 @@ const ninController = {
     // #swagger.summary = 'Get all nins'
     // #swagger.description = 'Get all nins'
     const nins = await ninService.fetchAllNins();
-    successResponse(res, "All Nins", 200, { nins });
+    return successResponse(res, "All Nins", 200, { nins });
   },
   async getNinByNinNumber(req, res, next) {
       // #swagger.tags = ['Nins']
@@ -117,12 +117,8 @@ const ninController = {
         session,
       );
 
-      if (code === 409) {
-        return next(throwError(error, code));
-      }
-      if (code === 400) {
-        return next(throwError(error, code));
-      }
+     if (error) return next(throwError(error, code));
+     
       await session.commitTransaction();
       // Send mail for nin creation
       await mailService.send.ninCreationMail(

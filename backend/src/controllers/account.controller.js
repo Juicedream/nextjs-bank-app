@@ -59,10 +59,9 @@ const accountController = {
 
     try {
       const {error, code, newAccount, userEmail, accountPin} = await accountService.create(nin, session);
-      if (code === 404) return next(throwError(error, code));
-      if (code === 401) return next(throwError(error, code));
-      //TODO: Send mail for account creation
-       await session.commitTransaction();
+      if (error) return next(throwError(error, code));
+      await session.commitTransaction();
+      //Send mail for account creation
        await mailService.send.accountCreationMail(
         userEmail,
         `

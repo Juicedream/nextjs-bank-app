@@ -1,5 +1,6 @@
 const express = require("express");
 const swaggerUi = require("swagger-ui-express");
+const cookieParser = require("cookie-parser");
 const {
   catchAllErrorsMiddleware,
 } = require("./middlewares/error.handler.middleware");
@@ -9,11 +10,13 @@ const successResponse = require("./middlewares/success.response.handler");
 const accountRouter = require("./routes/account.routes");
 const swaggerFile = require("../swagger-output.json");
 const transactionRouter = require("./routes/transaction.routes");
+const authRouter = require("./routes/auth.routes");
 
 const app = express();
 
 // Initialization
 app.use(express.json()) // Read request body and converts to json
+app.use(cookieParser()) // Read cookies e.g accessToken
 
 // Swagger Intialization
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
@@ -46,6 +49,7 @@ app.use("/api/users", userRouter);
 app.use("/api/nins", ninRouter);
 app.use("/api/accounts", accountRouter);
 app.use("/api/transactions", transactionRouter);
+app.use("/api/auth", authRouter);
 
 // Error handler middleware - Catch all errors in our app
 app.use(catchAllErrorsMiddleware);

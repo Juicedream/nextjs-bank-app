@@ -10,22 +10,23 @@ const doc = {
   servers: [
     {
       url: envConfig.API_URL, // Development server
-      description: "Development server",
+      description: envConfig.NODE_ENV === "development" ? "Development server" : "Production server" ,
     },
   ],
-   tags: [
-    { name: 'App', description: 'App endpoints' },
-    { name: 'Users', description: 'Users endpoints' },
-    { name: 'Nins', description: 'Nins endpoints' },
-    { name: 'Accounts', description: 'Accounts endpoints' },
-    { name: 'Transactions', description: 'Transactions endpoints' },
+  tags: [
+    { name: "App", description: "App endpoints" },
+    { name: "Auth", description: "Auth endpoints" },
+    { name: "Users", description: "Users endpoints" },
+    { name: "Nins", description: "Nins endpoints" },
+    { name: "Accounts", description: "Accounts endpoints" },
+    { name: "Transactions", description: "Transactions endpoints" },
   ],
   components: {
     securitySchemes: {
       bearerAuth: {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT",
       },
     },
   },

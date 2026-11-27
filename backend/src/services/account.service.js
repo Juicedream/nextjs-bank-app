@@ -11,34 +11,31 @@ const ninService = require("./nin.service");
 const transactionService = require("./transaction.service");
 const userService = require("./user.service");
 
-class AccountService {
-  // Services
-  #userService = userService;
-  #ninService = ninService;
-  #transactionService = transactionService;
 
-  async #findAccountById(id) {
+const accountService = {
+
+  async findAccountById(id) {
     const account = await db.Account.findById(id).populate(
       "transactions",
     ).lean();
-    if (!account) return null;
+    if (!account) return {error: "Account not found", code: 404};
     // const {passwordHash, ...rest}
-    return account;
-  }
+    return {account};
+  },
 
   async allAccounts() {
     const accounts = await db.Account.find({})
     .populate("transactions")
     .lean();
     return accounts;
-  }
+  },
 
   async allAccountsWithUserId(userId) {
     const accounts = await db.Account.find({ userId }).populate(
       "transactions",
     );
     return accounts;
-  }
+  },
 
   async findAccountByAccountNumber(accountNumber) {
     const account = await db.Account.findOne({
@@ -47,11 +44,11 @@ class AccountService {
     if (!account) return {error: "Account not found", code: 404};
 
     return {account};
-  }
+  },
 
   async updateAccount(accountNumber, data) {
-    const account = await this.findAccountByAccountNumber(accountNumber);
-    if (!account) return null;
+    const {account, error, code} = await this.findAccountByAccountNumber(accountNumber);
+    if (error) return {error, code};
 
     let pinHash;
 
@@ -79,8 +76,8 @@ class AccountService {
       isActive: data.isActive ? data.isActive : account.isActive,
     });
 
-    return updatedAccount;
-  }
+    return {updatedAccount};
+  },
 
   async updateAccountBalance(
     accountNumber,
@@ -89,8 +86,8 @@ class AccountService {
     transactionId,
     session,
   ) {
-    const account = await this.findAccountByAccountNumber(accountNumber);
-    if (!account) return null;
+    const {error, code, account} = await this.findAccountByAccountNumber(accountNumber);
+    if (error) return {error, code};
 
     const transactionAmount = Number(amount);
 
@@ -99,21 +96,24 @@ class AccountService {
     } else if (transactionType === "credit") {
       account.balance += transactionAmount;
     } else {
-      return null;
+      return {error: "Please provide a valid transactionType either debit or credit", code: 400};
     }
 
     (await account.save()).$session(session);
 
-    return await this.updateAccount(accountNumber, {
+    const {error: updateError, code: updateErrorCode, updatedAccount} = await this.updateAccount(accountNumber, {
       transactions: [transactionId],
     });
-  }
+
+    if (updateError) return {error: updateError, code: updateErrorCode}
+    return {updatedAccount};
+  },
 
   async create(nin, session) {
-    const foundNin = await this.#ninService.findNinByNumber(nin);
-    if (foundNin.error) return {error: foundNin.error, code: 404};
-    const existingNin = foundNin.userNin;
-    const user = await this.#userService.findUserByEmail(existingNin.email);
+    const {error, userNin} = await ninService.findNinByNumber(nin);
+    if (error) return {error, code: 404};
+    const existingNin = userNin;
+    const user = await userService.findUserByEmail(existingNin.email);
     
     if (!user) return {error: "User not found", code: 404};
 
@@ -129,7 +129,7 @@ class AccountService {
         : `${existingNin.firstName} ${existingNin.lastName}`;
 
     const accountNumber = generateSavingsAccountNumber();
-    const accountManager = await this.#userService.randomManagerAccountId();
+    const accountManager = await userService.randomManagerAccountId();
     const pin = generateFourDigitPin();
     const pinHash = await hashPin(pin);
 
@@ -145,27 +145,32 @@ class AccountService {
       { session },
     );
 
-    await this.#userService.updateUser(user._id, {
+    const {error:updatedUserError} = await userService.updateUser(user._id, {
       accountLimit: user.accountLimit + 1,
       accounts: [...user.accounts, newAccount._id],
     });
-   
 
-    console.log("Created account for user, Here is the pin", pin);
+    if (updatedUserError) return {error: updatedUserError};
+
     return { newAccount, userEmail: existingNin.email, accountPin: pin };
-  }
+  },
 
   async deleteAccountByAccountNumber(accountNumber) {
-    const account = await this.findAccountByAccountNumber(accountNumber);
+    const {error, code, account} = await this.findAccountByAccountNumber(accountNumber);
+    if (error) return {error, code}
 
-    const user = await this.#userService.findUserById(account.userId);
+    const {error: userError, code: userErrorCode, user} = await userService.findUserById(account.userId);
 
-    await this.#userService.deleteUserAccount(user._id, account._id);
+    if (userError) return {error: userError, code: userErrorCode}
+
+    const {deleted} = await userService.deleteUserAccountByAccountIdAndUserId(user._id, account._id);
+
+    if (!deleted) return {error: "Unable to delete account"}
 
     await db.Account.findByIdAndDelete(account._id);
 
     return { deleted: true };
-  }
+  },
 
   async transfer(data) {
     const senderAccount = await this.findAccountByAccountNumber(
@@ -213,11 +218,11 @@ class AccountService {
         idempotencyKey: data.idempotencyKey,
       };
 
-      const transaction = await this.#transactionService.create(newTransaction);
+      const transaction = await transactionService.create(newTransaction);
 
       (await senderAccount.save()).$session(session);
 
-      this.#creditReciever(
+      this.creditReciever(
         receiverAccount.accountNumber,
         tranAmount,
         transaction._id,
@@ -231,23 +236,24 @@ class AccountService {
       console.log("Transfer error:", error);
       return { message: "Transaction failed" };
     }
-  }
+  },
 
-  async #creditReciever(receiverAccountNumber, amount, tranId, session) {
+  async creditReciever(receiverAccountNumber, amount, tranId, session) {
     const status = Math.round(Math.random()) > 0 ? "success" : "failed";
 
     const tranAmount = Number(amount);
-    const transaction = await this.#transactionService.transactionById(tranId);
+    const {error, code, transaction} = await transactionService.transactionById(tranId);
+    if (error) return {error, code};
 
     if (status === "failed")
-      return this.#refundSender(
+      return this.refundSender(
         transaction.senderAccountNumber,
         tranAmount,
         tranId,
         session,
       );
 
-    await this.updateAccountBalance(
+    const {error: updatedAccountBalanceError, code: updateAccountBalanceCode} = await this.updateAccountBalance(
       Number(receiverAccountNumber),
       tranAmount,
       "credit",
@@ -255,32 +261,44 @@ class AccountService {
       session,
     );
 
-    await this.#transactionService.update(transaction.ref, { status });
+    if (updatedAccountBalanceError) return {
+      error: updatedAccountBalanceError,
+      code: updateAccountBalanceCode
+    }
 
-    console.log("Transaction compeleted successfully");
+    const updatedTransaction = await transactionService.update(transaction.ref, { status });
 
-    await session.commitTransaction();
+      console.log("Receiver credited successfully");
 
-    return { message: "Transaction compeleted successfully!" };
-  }
+    return { transaction: updatedTransaction };
+  },
 
-  async #refundSender(senderAccountNumber, amount, tranId, session) {
-    const transaction = await this.#transactionService.transactionById(tranId);
+  async refundSender(senderAccountNumber, amount, tranId, session) {
+    const {error, code, transaction} = await transactionService.transactionById(tranId);
 
-    await this.updateAccountBalance(
+    if (error) return {error, code}
+
+    const {error: updatedAccountBalanceError, code: updateAccountBalanceCode} = await this.updateAccountBalance(
       Number(senderAccountNumber),
       Number(amount),
       "credit",
       tranId,
       session,
     );
-    await this.#transactionService.update(transaction.ref, {
+
+     if (updatedAccountBalanceError) return {
+      error: updatedAccountBalanceError,
+      code: updateAccountBalanceCode
+    }
+
+    const updatedTransaction = await transactionService.update(transaction.ref, {
       status: "failed",
     });
 
     console.log("Sender refunded successfully");
-    return { message: "Sender refunded successfully!" };
-  }
+
+    return { transaction: updatedTransaction };
+  },
 
   async deleteAccountsByUserId(userId) {
     try {
@@ -290,6 +308,8 @@ class AccountService {
       return {deleted: false, error}
     }
   }
+  
 }
 
-module.exports = new AccountService();
+
+module.exports = accountService

@@ -20,6 +20,9 @@ const userSchema = new mongoose.Schema(
     otpHash: {
       type: String,
     },
+    otpExpiresAt: {
+      type: Date,
+    },
     role: {
       type: String,
       enum: [...userRoles],
@@ -36,6 +39,9 @@ const userSchema = new mongoose.Schema(
         ref: "Account",
       },
     ],
+    accessTokenHash: {
+      type: String,
+    },
   },
   { timestamps: true },
 );
